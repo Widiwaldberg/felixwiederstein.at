@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Felix Wiederstein — Fotografie & Bikelife Media</title>
+  <meta name="description" content="Felix Wiederstein — Fotograf für Familie, Freundschaft und Bikelife Media. Authentische Momente, dynamische Reportagen." />
+  <meta property="og:title" content="Felix Wiederstein" />
+  <meta property="og:description" content="Fotografie für Familie & Freunde und Bikelife Media." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preload" href="https://picsum.photos/seed/fw-hero/1920/1080" as="image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=Anton&family=Barlow+Condensed:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { overflow-x: clip; }
+
+    body {
+      background: #000;
+      color: #fff;
+      overflow-x: clip;
+      cursor: none;
+    }
+
+    /* ── Custom cursor ── */
+    #cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(255,255,255,0.65);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.35s cubic-bezier(0.16,1,0.3,1),
+                  height 0.35s cubic-bezier(0.16,1,0.3,1),
+                  border-color 0.35s ease;
+      mix-blend-mode: difference;
+    }
+    #cursor.large {
+      width: 80px;
+      height: 80px;
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    /* ── Stage 1 & 2 — Scroll driver ── */
+    .scroll-driver {
+      height: 220vh;
+      position: relative;
+    }
+
+    #heroFixed {
+      position: sticky;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      display: grid;
+      place-items: center;
+    }
+
+    .hero-frame {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      will-change: transform;
+    }
+
+    .hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(0,0,0,0.55) 100%),
+        linear-gradient(
+          170deg,
+          rgba(0,0,0,0.08) 0%,
+          rgba(0,0,0,0.28) 50%,
+          rgba(0,0,0,0.72) 100%
+        );
+    }
+
+    /* ── Grain texture ── */
+    #heroFixed::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='320' height='320' filter='url(%23g)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.038;
+      mix-blend-mode: overlay;
+    }
+
+    /* ── Logo mark — top-left ── */
+    .logo-mark {
+      position: absolute;
+      top: clamp(1.2rem, 2.5vh, 2rem);
+      left: clamp(1.5rem, 3vw, 2.5rem);
+      z-index: 10;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.2rem, 1.65vw, 1.45rem);
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 0.14em;
+      color: rgba(255,255,255,0.72);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    /* ── Signature — overlays image, not a child of it ── */
+    .hero-signature {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      pointer-events: none;
+      gap: 0.05em;
+    }
+    .sig-line {
+      display: block;
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(4rem, 9vw, 12rem);
+      color: rgba(255,255,255,0.92);
+      text-shadow: 0 2px 80px rgba(0,0,0,0.6);
+      will-change: clip-path;
+      line-height: 1.1;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 3.5%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      pointer-events: none;
+    }
+    .scroll-hint-line {
+      width: 1px;
+      height: 36px;
+      background: rgba(255,255,255,0.22);
+      transform-origin: top;
+      animation: linePulse 2.2s ease-in-out infinite;
+    }
+    @keyframes linePulse {
+      0%, 100% { transform: scaleY(1); opacity: 0.4; }
+      50% { transform: scaleY(0.5); opacity: 0.9; }
+    }
+
+    /* ── Stage 3 — Dual selection ── */
+    .stage-3 {
+      width: 100vw;
+      aspect-ratio: 16 / 9;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      cursor: none;
+    }
+
+    .panel {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transform: scale(1.05);
+      transition: transform 1s cubic-bezier(0.16,1,0.3,1),
+                  filter 0.7s ease;
+      will-change: transform, filter;
+    }
+
+    .panel-shade {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.22);
+      transition: background 0.7s ease;
+      z-index: 1;
+    }
+
+    /* Sibling dims on hover */
+    .stage-3:hover .panel:not(:hover) img {
+      filter: brightness(0.35) saturate(0.15);
+    }
+    .stage-3:hover .panel:not(:hover) .panel-shade {
+      background: rgba(0,0,0,0.6);
+    }
+
+    /* Self zooms */
+    .panel:hover img {
+      transform: scale(1.09);
+    }
+
+    /* Labels */
+    .panel-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .panel-label.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .label-family {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3.8vw, 5rem);
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 0.04em;
+      color: #fff;
+      text-shadow: 0 2px 50px rgba(0,0,0,0.7);
+      transition: text-shadow 0.5s ease;
+    }
+    .panel:hover .label-family {
+      text-shadow: 0 2px 50px rgba(0,0,0,0.7), 0 0 80px rgba(255,255,255,0.18);
+    }
+
+    .label-bikelife {
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(2.2rem, 4.5vw, 6.5rem);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 40px rgba(0,0,0,0.9);
+      transition: text-shadow 0.5s ease;
+    }
+    .panel:hover .label-bikelife {
+      text-shadow: 0 2px 40px rgba(0,0,0,0.9), 0 0 100px rgba(255,255,255,0.12);
+    }
+
+    /* Label — Video Work */
+    .label-video {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(2rem, 4vw, 5.5rem);
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 40px rgba(0,0,0,0.85);
+      transition: text-shadow 0.5s ease;
+    }
+    .panel:hover .label-video {
+      text-shadow: 0 2px 40px rgba(0,0,0,0.85), 0 0 90px rgba(255,255,255,0.14);
+    }
+
+    /* Divider */
+    .stage-divider {
+      position: absolute;
+      left: 5%; right: 5%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.25) 30%,
+        rgba(255,255,255,0.25) 70%,
+        transparent
+      );
+      z-index: 5;
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform 1.4s cubic-bezier(0.16,1,0.3,1);
+      pointer-events: none;
+    }
+    .stage-divider.in {
+      transform: scaleX(1);
+    }
+
+    /* ── Content Panels (inside heroFixed, slide in behind image) ── */
+    .content-panel {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      padding: clamp(3rem, 6vw, 7rem) clamp(2.5rem, 5vw, 6rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2rem;
+      z-index: 1;
+      will-change: transform;
+    }
+    .content-panel.left  { left: 0;  border-right: 1px solid rgba(255,255,255,0.08); }
+    .content-panel.right { right: 0; }
+
+    .content-tag {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* Bikelife — right-aligned */
+    .content-panel.right.panel-bike {
+      align-items: flex-end;
+      text-align: right;
+    }
+
+    /* Bikelife — bold, industrial */
+    .panel-bike .content-heading {
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(2.8rem, 5vw, 6rem);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      line-height: 1.0;
+      color: #fff;
+    }
+    .panel-bike .content-body {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(1rem, 1.4vw, 1.2rem);
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.65;
+      max-width: 38ch;
+    }
+    .panel-bike .content-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .panel-bike .content-list li {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.75);
+      display: flex;
+      align-items: center;
+      flex-direction: row-reverse;
+      gap: 0.75rem;
+    }
+    .panel-bike .content-list li::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: rgba(255,255,255,0.4);
+      flex-shrink: 0;
+    }
+
+    /* Family & Friends — soft, elegant */
+    .panel-family .content-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.8rem, 5vw, 6rem);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      color: #fff;
+    }
+    .panel-family .content-body {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1rem, 1.3vw, 1.2rem);
+      font-weight: 300;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.8;
+      max-width: 38ch;
+    }
+    .panel-family .content-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .panel-family .content-list li {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+      font-weight: 300;
+      font-style: italic;
+      color: rgba(255,255,255,0.75);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .panel-family .content-list li::before {
+      content: '·';
+      color: rgba(255,255,255,0.3);
+      font-size: 1.4rem;
+      line-height: 0;
+    }
+
+    /* Shared CTA */
+    .content-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      transition: color 0.3s ease, gap 0.3s ease;
+    }
+    .content-cta:hover { color: #fff; gap: 0.9rem; }
+    .content-cta:focus-visible {
+      outline: 1px solid rgba(255,255,255,0.45);
+      outline-offset: 5px;
+      color: #fff;
+      border-radius: 1px;
+    }
+    .content-cta:active { opacity: 0.6; }
+
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      body { cursor: auto; }
+      #cursor { display: none; }
+      .stage-3 {
+        aspect-ratio: auto;
+        height: 100svh;
+        cursor: auto;
+      }
+      .hero-title { letter-spacing: 0.06em; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<!-- ── Stage 1 & 2 ── -->
+<div class="scroll-driver" id="scrollDriver">
+  <div id="heroFixed">
+
+    <!-- Content panels behind image — slide in from sides -->
+    <div class="content-panel left panel-family" id="panelFamily">
+      <span class="content-tag">Family &amp; Friends</span>
+      <h2 class="content-heading">Momente,<br>die bleiben.</h2>
+      <p class="content-body">
+        Echte Momente mit Menschen, die dir wichtig sind. Keine gestellten Posen — nur Licht, Stimmung und das, was zwischen euch passiert.
+      </p>
+      <ul class="content-list">
+        <li>Portrait Sessions</li>
+        <li>Familien &amp; Gruppen</li>
+        <li>Geburtstage &amp; Feiern</li>
+        <li>Freundschaftsfotos</li>
+        <li>Spontane Reportagen</li>
+      </ul>
+      <a class="content-cta" href="#">Session buchen →</a>
+    </div>
+
+    <div class="content-panel right panel-bike" id="panelBike">
+      <span class="content-tag">Bikelife Media</span>
+      <h2 class="content-heading">Zwei Räder.<br>Eine Geschichte.</h2>
+      <p class="content-body">
+        Ich halte fest, was auf zwei Rädern passiert — von spontanen Ausfahrten bis zu organisierten Events. Authentisch, dynamisch, ungestellt.
+      </p>
+      <ul class="content-list">
+        <li>Action &amp; Lifestyle Fotografie</li>
+        <li>Video Production &amp; Reels</li>
+        <li>Event &amp; Ride Coverage</li>
+        <li>Social Media Content</li>
+        <li>Motorrad Portraits</li>
+      </ul>
+      <a class="content-cta" href="#">Projekt anfragen →</a>
+    </div>
+
+    <div class="logo-mark">Felix Wiederstein</div>
+
+    <div class="hero-frame" id="heroFrame" style="z-index:2;">
+      <img
+        class="hero-img"
+        src="https://picsum.photos/seed/fw-hero/1920/1080"
+        alt=""
+        fetchpriority="high"
+      />
+      <div class="hero-overlay"></div>
+      <div class="scroll-hint" id="scrollHint">
+        <span class="scroll-hint-line"></span>
+        scroll
+      </div>
+    </div>
+
+    <!-- Signature sits above the image, doesn't scale with it -->
+    <div class="hero-signature">
+      <span class="sig-line" id="sigFelix">Felix</span>
+      <span class="sig-line" id="sigWiederstein">Wiederstein</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Stage 3 ── -->
+<section class="stage-3" id="stage3">
+
+  <div class="panel" id="panelTop">
+    <img
+      src="https://picsum.photos/seed/fw-family/1920/1080"
+      alt="Family &amp; Friends"
+      loading="lazy"
+    />
+    <div class="panel-shade"></div>
+    <div class="panel-label" id="labelTop">
+      <span class="label-family">Family &amp; Friends</span>
+    </div>
+    <div class="panel-enter">Enter <span class="arr">→</span></div>
+  </div>
+
+  <div class="stage-divider" id="stageDivider1" style="top: 33.33%"></div>
+
+  <div class="panel" id="panelMiddle">
+    <img
+      src="https://picsum.photos/seed/fw-video/1920/1080"
+      alt="Video Work"
+      loading="lazy"
+    />
+    <div class="panel-shade"></div>
+    <div class="panel-label" id="labelMiddle">
+      <span class="label-video">Video Work</span>
+    </div>
+    <div class="panel-enter">Enter <span class="arr">→</span></div>
+  </div>
+
+  <div class="stage-divider" id="stageDivider2" style="top: 66.67%"></div>
+
+  <div class="panel" id="panelBottom">
+    <img
+      src="https://picsum.photos/seed/fw-bike/1920/1080"
+      alt="Bikelife Media"
+      loading="lazy"
+    />
+    <div class="panel-shade"></div>
+    <div class="panel-label" id="labelBottom">
+      <span class="label-bikelife">Bikelife Media</span>
+    </div>
+    <div class="panel-enter">Enter <span class="arr">→</span></div>
+  </div>
+
+</section>
+
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ── Lenis smooth scroll ──
+const lenis = new Lenis({
+  duration: 0.9,
+  easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+});
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(time => lenis.raf(time * 1000));
+gsap.ticker.lagSmoothing(0);
+
+// ── Custom cursor (lerped) ──
+const cursor = document.getElementById('cursor');
+let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+let cx = mx, cy = my;
+
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+(function tick() {
+  cx += (mx - cx) * 0.1;
+  cy += (my - cy) * 0.1;
+  cursor.style.left = cx + 'px';
+  cursor.style.top  = cy + 'px';
+  requestAnimationFrame(tick);
+})();
+
+document.querySelectorAll('.panel').forEach(p => {
+  p.addEventListener('mouseenter', () => cursor.classList.add('large'));
+  p.addEventListener('mouseleave', () => cursor.classList.remove('large'));
+});
+
+// ── Scroll-driven animation ──
+const tl = gsap.timeline({
+  scrollTrigger: {
+    trigger: '.scroll-driver',
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: 0.8,
+  }
+});
+
+const END = 0.80;
+
+tl.to('#heroFrame', { scale: 0.17, borderRadius: '5px', ease: 'none', duration: END }, 0);
+
+// Content panels slide in from sides — finish before image is fully small
+const PANEL_DUR = END * 0.72;
+gsap.set('#panelFamily', { x: '-100%' });
+gsap.set('#panelBike',   { x:  '100%' });
+tl.to('#panelFamily', { x: '0%', ease: 'none', duration: PANEL_DUR }, 0);
+tl.to('#panelBike',   { x: '0%', ease: 'none', duration: PANEL_DUR }, 0);
+
+// Scroll hint fades immediately
+tl.to('#scrollHint', { opacity: 0, ease: 'none', duration: 0.10 }, 0);
+
+// Signature: builds from 1/4 of shrink, finishes with it
+const SIG_START = END * 0.25;
+const SIG_DUR   = END - SIG_START;
+
+gsap.set('#sigFelix',       { clipPath: 'inset(0 100% 0 0)' });
+gsap.set('#sigWiederstein', { clipPath: 'inset(0 0% 0 100%)' });
+
+tl.to('#sigFelix',       { clipPath: 'inset(0 0% 0 0)',  ease: 'none', duration: SIG_DUR }, SIG_START);
+tl.to('#sigWiederstein', { clipPath: 'inset(0 0% 0 0%)', ease: 'none', duration: SIG_DUR }, SIG_START);
+
+// ── Stage 3 enter ──
+const io = new IntersectionObserver(entries => {
+  if (!entries[0].isIntersecting) return;
+  document.getElementById('stageDivider1').classList.add('in');
+  document.getElementById('stageDivider2').classList.add('in');
+  setTimeout(() => {
+    document.getElementById('labelTop').classList.add('in');
+    document.getElementById('labelMiddle').classList.add('in');
+    document.getElementById('labelBottom').classList.add('in');
+  }, 480);
+  io.disconnect();
+}, { threshold: 0.25 });
+
+io.observe(document.getElementById('stage3'));
+
+
+</script>
+</body>
+</html>
