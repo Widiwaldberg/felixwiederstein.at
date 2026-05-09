@@ -227,6 +227,7 @@ function GalleryScene({
 	},
 }: Omit<InfiniteGalleryProps, 'className' | 'style'>) {
 	const [scrollVelocity, setScrollVelocity] = useState(0);
+	const scrollVelocityRef = useRef(0);
 	const [autoPlay, setAutoPlay] = useState(true);
 	const lastInteraction = useRef(Date.now());
 	const rotationDone = useRef(false);
@@ -309,13 +310,13 @@ function GalleryScene({
 					return;
 				}
 				event.preventDefault();
-				setScrollVelocity((prev) => prev - event.deltaY * 0.01 * speed);
+				setScrollVelocity((prev) => { const next = prev - event.deltaY * 0.01 * speed; scrollVelocityRef.current = next; return next; });
 				setAutoPlay(false);
 				lastInteraction.current = Date.now();
 				return;
 			}
 			event.preventDefault();
-			setScrollVelocity((prev) => prev - event.deltaY * 0.01 * speed);
+			setScrollVelocity((prev) => { const next = prev - event.deltaY * 0.01 * speed; scrollVelocityRef.current = next; return next; });
 			setAutoPlay(false);
 			lastInteraction.current = Date.now();
 		},
@@ -361,13 +362,21 @@ function GalleryScene({
 
 	useFrame((state, delta) => {
 		if (autoPlay) {
-			setScrollVelocity((prev) => prev - 0.3 * delta);
+			setScrollVelocity((prev) => {
+				const next = prev - 0.3 * delta;
+				scrollVelocityRef.current = next;
+				return next;
+			});
 		}
 
-		setScrollVelocity((prev) => prev * 0.95);
+		setScrollVelocity((prev) => {
+			const next = prev * 0.95;
+			scrollVelocityRef.current = next;
+			return next;
+		});
 
 		if (!rotationDone.current) {
-			zTravelAccum.current += Math.abs(scrollVelocity * delta * 10);
+			zTravelAccum.current += Math.abs(scrollVelocityRef.current * delta * 10);
 			if (zTravelAccum.current >= depthRange * 0.8) {
 				rotationDone.current = true;
 				window.dispatchEvent(new CustomEvent('galleryRotationComplete'));
