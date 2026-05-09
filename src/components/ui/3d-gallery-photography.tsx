@@ -384,7 +384,6 @@ function GalleryScene({
 		const imageAdvance =
 			totalImages > 0 ? visibleCount % totalImages || totalImages : 0;
 		const totalRange = depthRange;
-		const halfRange = totalRange / 2;
 
 		planesData.current.forEach((plane, i) => {
 			let newZ = plane.z + scrollVelocity * delta * 10;
@@ -412,8 +411,6 @@ function GalleryScene({
 			plane.z = ((newZ % totalRange) + totalRange) % totalRange;
 			plane.x = spatialPositions[i]?.x ?? 0;
 			plane.y = spatialPositions[i]?.y ?? 0;
-
-			const worldZ = plane.z - halfRange;
 
 			const normalizedPosition = plane.z / totalRange;
 			let opacity = 1;
