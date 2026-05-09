@@ -50,8 +50,6 @@ interface PlaneData {
 }
 
 const DEFAULT_DEPTH_RANGE = 50;
-// Higher value = more scrolling required before page scroll begins
-const ROTATION_THRESHOLD = DEFAULT_DEPTH_RANGE * 0.9;
 const MAX_HORIZONTAL_OFFSET = 8;
 const MAX_VERTICAL_OFFSET = 8;
 
@@ -231,8 +229,8 @@ function GalleryScene({
 	const [scrollVelocity, setScrollVelocity] = useState(0);
 	const [autoPlay, setAutoPlay] = useState(true);
 	const lastInteraction = useRef(Date.now());
-	const userScrollAccum = useRef(0);
 	const rotationDone = useRef(false);
+	const zTravelAccum = useRef(0);
 
 	const normalizedImages = useMemo(
 		() =>
@@ -317,11 +315,6 @@ function GalleryScene({
 				return;
 			}
 			event.preventDefault();
-			userScrollAccum.current += Math.abs(event.deltaY) * 0.01 * speed;
-			if (userScrollAccum.current >= ROTATION_THRESHOLD) {
-				rotationDone.current = true;
-				window.dispatchEvent(new CustomEvent('galleryRotationComplete'));
-			}
 			setScrollVelocity((prev) => prev - event.deltaY * 0.01 * speed);
 			setAutoPlay(false);
 			lastInteraction.current = Date.now();
@@ -372,6 +365,14 @@ function GalleryScene({
 		}
 
 		setScrollVelocity((prev) => prev * 0.95);
+
+		if (!rotationDone.current) {
+			zTravelAccum.current += Math.abs(scrollVelocity * delta * 10);
+			if (zTravelAccum.current >= depthRange * 0.8) {
+				rotationDone.current = true;
+				window.dispatchEvent(new CustomEvent('galleryRotationComplete'));
+			}
+		}
 
 		const time = state.clock.getElapsedTime();
 		materials.forEach((material) => {

@@ -639,7 +639,7 @@ const END = 0.80;
 // not toward top-left (default GSAP behaviour can drift on absolute+inset:0 elements)
 gsap.set('#heroFrame', { transformOrigin: '50% 50%' });
 tl.to('#heroFrame', { scale: 0.17, borderRadius: '5px', transformOrigin: '50% 50%', ease: 'none', duration: END }, 0);
-tl.to('#heroFrame', { opacity: 0, ease: 'none', duration: END * 0.55 }, 0);
+tl.to('#heroFrame', { opacity: 0, ease: 'none', duration: END * 1.25 }, 0);
 
 // Content panels slide in from sides — finish before image is fully small
 const PANEL_DUR = END * 0.72;
