@@ -25,8 +25,8 @@
     html { overflow-x: clip; }
 
     body {
-      background: #000;
-      color: #fff;
+      background: #1a1714;
+      color: #f0ebe4;
       overflow-x: clip;
       cursor: none;
     }
@@ -63,7 +63,7 @@
       top: 0;
       width: 100vw;
       height: 100vh;
-      background: #000;
+      background: #1a1714;
       display: grid;
       place-items: center;
     }
@@ -80,6 +80,9 @@
        parent .hero-frame has a GSAP scale transform → BCR is post-transform → R3F
        sets canvas CSS width/height too small. Force canvas to fill container so
        it stays centered in #heroFrame. */
+    #gallery-root {
+      background: #1a1714;
+    }
     #gallery-root canvas {
       width: 100% !important;
       height: 100% !important;
@@ -96,14 +99,7 @@
     .hero-overlay {
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(0,0,0,0.55) 100%),
-        linear-gradient(
-          170deg,
-          rgba(0,0,0,0.08) 0%,
-          rgba(0,0,0,0.28) 50%,
-          rgba(0,0,0,0.72) 100%
-        );
+      background: transparent;
     }
 
     /* ── Grain texture ── */
@@ -129,7 +125,7 @@
       font-weight: 300;
       font-style: italic;
       letter-spacing: 0.14em;
-      color: rgba(255,255,255,0.72);
+      color: rgba(240,228,210,0.80);
       pointer-events: none;
       white-space: nowrap;
     }
@@ -328,8 +324,9 @@
       gap: 2rem;
       z-index: 1;
       will-change: transform;
+      background: #1a1714;
     }
-    .content-panel.left  { left: 0;  border-right: 1px solid rgba(255,255,255,0.08); }
+    .content-panel.left  { left: 0;  border-right: 1px solid rgba(196,168,130,0.12); }
     .content-panel.right { right: 0; }
 
     .content-tag {
@@ -337,7 +334,7 @@
       font-size: 0.7rem;
       letter-spacing: 0.35em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
+      color: rgba(196,168,130,0.55);
     }
 
     /* Bikelife — right-aligned */
@@ -353,14 +350,14 @@
       letter-spacing: 0.03em;
       text-transform: uppercase;
       line-height: 1.0;
-      color: #fff;
+      color: #f0ebe4;
     }
     .panel-bike .content-body {
       font-family: 'Barlow Condensed', sans-serif;
       font-size: clamp(1rem, 1.4vw, 1.2rem);
       font-weight: 400;
       letter-spacing: 0.02em;
-      color: rgba(255,255,255,0.55);
+      color: rgba(176,158,138,0.85);
       line-height: 1.65;
       max-width: 38ch;
     }
@@ -375,7 +372,7 @@
       font-size: clamp(0.95rem, 1.3vw, 1.1rem);
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.75);
+      color: rgba(216,200,182,0.88);
       display: flex;
       align-items: center;
       flex-direction: row-reverse;
@@ -386,7 +383,7 @@
       display: block;
       width: 20px;
       height: 1px;
-      background: rgba(255,255,255,0.4);
+      background: rgba(196,168,130,0.45);
       flex-shrink: 0;
     }
 
@@ -398,13 +395,13 @@
       font-style: italic;
       line-height: 1.1;
       letter-spacing: -0.01em;
-      color: #fff;
+      color: #f0ebe4;
     }
     .panel-family .content-body {
       font-family: 'Cormorant Garamond', serif;
       font-size: clamp(1rem, 1.3vw, 1.2rem);
       font-weight: 300;
-      color: rgba(255,255,255,0.55);
+      color: rgba(176,158,138,0.85);
       line-height: 1.8;
       max-width: 38ch;
     }
@@ -419,14 +416,14 @@
       font-size: clamp(1.05rem, 1.4vw, 1.25rem);
       font-weight: 300;
       font-style: italic;
-      color: rgba(255,255,255,0.75);
+      color: rgba(216,200,182,0.88);
       display: flex;
       align-items: center;
       gap: 0.75rem;
     }
     .panel-family .content-list li::before {
       content: '·';
-      color: rgba(255,255,255,0.3);
+      color: rgba(196,168,130,0.45);
       font-size: 1.4rem;
       line-height: 0;
     }
@@ -441,15 +438,15 @@
       font-size: 0.75rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.5);
+      color: rgba(196,168,130,0.6);
       text-decoration: none;
       transition: color 0.3s ease, gap 0.3s ease;
     }
-    .content-cta:hover { color: #fff; gap: 0.9rem; }
+    .content-cta:hover { color: #c4a882; gap: 0.9rem; }
     .content-cta:focus-visible {
-      outline: 1px solid rgba(255,255,255,0.45);
+      outline: 1px solid rgba(196,168,130,0.5);
       outline-offset: 5px;
-      color: #fff;
+      color: #c4a882;
       border-radius: 1px;
     }
     .content-cta:active { opacity: 0.6; }
@@ -640,7 +637,7 @@ const END = 0.80;
 // not toward top-left (default GSAP behaviour can drift on absolute+inset:0 elements)
 gsap.set('#heroFrame', { transformOrigin: '50% 50%' });
 tl.to('#heroFrame', { scale: 0.17, borderRadius: '5px', transformOrigin: '50% 50%', ease: 'none', duration: END }, 0);
-tl.to('#heroFrame', { opacity: 0, ease: 'none', duration: END * 1.25 }, 0);
+tl.to('#heroFrame', { opacity: 0, ease: 'none', duration: END * 0.7 }, 0);
 
 // Content panels slide in from sides — finish before image is fully small
 const PANEL_DUR = END * 0.72;

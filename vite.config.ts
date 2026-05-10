@@ -6,8 +6,25 @@ import { dirname, resolve } from 'path'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+const htmlRoutes: Record<string, string> = {
+  '/deine-fotos': '/deine-fotos.html',
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'html-routes',
+      configureServer(server) {
+        server.middlewares.use((req, _res, next) => {
+          if (req.url && htmlRoutes[req.url.split('?')[0]]) {
+            req.url = htmlRoutes[req.url.split('?')[0]]
+          }
+          next()
+        })
+      },
+    },
+  ],
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
