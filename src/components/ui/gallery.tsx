@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,7 @@ export const PhotoGallery = ({
   }, [animationDelay]);
 
   // Animation variants for the container
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 1 },
     visible: {
       opacity: 1,
@@ -45,7 +45,7 @@ export const PhotoGallery = ({
   };
 
   // Animation variants for each photo
-  const photoVariants = {
+  const photoVariants: Variants = {
     hidden: () => ({ x: 0, y: 0, rotate: 0, scale: 1 }),
     visible: (custom: { x: any; y: any; order: number }) => ({
       x: custom.x,

@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/deine-fotos", "destination": "/deine-fotos.html" }
+  ],
+  "cleanUrls": true
+}
